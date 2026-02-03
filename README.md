@@ -12,58 +12,57 @@ Designed with:
 * Dockerized infrastructure
 
 ---
+## 🎯 Project Goals
 
-# 🧠 Why Kafka?
-
-Without events → everything runs sequentially and failures propagate.
-
-With Kafka → the transfer is completed first, and side effects run independently.
-
-## ❌ Without Kafka
-
-```
-Transfer
-├─ update balances
-├─ write audit
-├─ send notification
-└─ update reports
-```
-
-If notifications fail → whole request may fail.
+- Simulate a real-world **fintech P2P payment flow**
+- Apply **Hexagonal Architecture (Ports & Adapters)**
+- Implement **event-driven communication** with Kafka
+- Ensure **transactional consistency** (ACID)
+- Handle **idempotency and retries** with Redis
+- Run everything locally using **Docker Compose**
+- Serve as a **production-grade backend portfolio project**
 
 ---
 
-## ✅ With Kafka (event-driven)
+# 🧠 Key Principles
 
-```
-Transfer completed
-        ↓
-Kafka Topic (transfer.completed)
-        ↓
-Audit | Notifications | Reports
-```
-
-Each consumer works independently.
-
-**Benefits**
-
-* resilience
-* decoupling
-* retry capability
-* scalability
-
-If notifications fail → transfer is still successful.
-
+- Domain layer is **framework-independent**
+- Business logic isolated from infrastructure
+- Dependencies point **inwards**
+- Easy to test and evolve
+- 
 ---
 
-# ⚡ Quick Start
+## 🛠 Tech Stack
+
+### Backend
+- Java 21
+- Spring Boot
+- Spring Data JPA
+- Spring Kafka
+- Spring Validation
+
+### 🐳 Infrastructure
+- PostgreSQL
+- Redis
+- Apache Kafka (KRaft mode)
+- Docker & Docker Compose
+
+### Tooling
+- DBeaver (PostgreSQL UI)
+- Kafka UI (Kafka monitoring)
+- Swagger / OpenAPI
+
+---
 
 ## Requirements
 
 * Docker Desktop
 * Java 21+
 
-## Start everything
+---
+
+## 🎯  Start everything
 
 ```bash
 docker compose up -d
@@ -87,53 +86,6 @@ Swagger:
 ```bash
 docker compose down
 ```
-
----
-
-# 🐳 Infrastructure
-
-Everything runs inside containers:
-
-* postgres
-* redis
-* zookeeper
-* kafka
-* spring app
-
-No local installation required.
-
----
-
-# 🔥 Kafka Integration
-
-## Topics
-
-```
-transfer.completed
-transfer.failed
-```
-
-## Flow
-
-```
-TransactionService (Producer)
-        ↓
-Kafka
-        ↓
-NotificationConsumer
-AuditConsumer
-ReportingConsumer
-```
-
-## Dependency
-
-```xml
-<dependency>
-  <groupId>org.springframework.boot</groupId>
-  <artifactId>spring-boot-starter-kafka</artifactId>
-</dependency>
-```
-
 ---
 
 # 🧪 Run tests
@@ -141,21 +93,6 @@ ReportingConsumer
 ```bash
 ./mvnw test
 ```
-
----
-
-# 🎯 Purpose
-
-This project demonstrates:
-
-* event-driven architecture
-* async processing with Kafka
-* real-world fintech transaction flows
-* clean Spring Boot backend design
-* Dockerized local environment
-
-Ideal for backend / fintech interviews and portfolio.
-
 ---
 
 # 👨‍💻 Author
