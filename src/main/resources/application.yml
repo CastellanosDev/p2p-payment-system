@@ -1,0 +1,38 @@
+# ─── DATABASE ───────────────────────────────────────────────
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/p2p_payment
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  # ─── JPA ────────────────────────────────────────────────
+  jpa:
+    hibernate:
+      ddl-auto: update        # crea/actualiza tablas automáticamente
+    show-sql: true            # muestra las queries en la consola (útil para desarrollo)
+    properties:
+      hibernate:
+        format_logger_sql: true
+
+  # ─── REDIS ──────────────────────────────────────────────
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  # ─── KAFKA ──────────────────────────────────────────────
+  kafka:
+    bootstrap-servers: localhost:19092
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: p2p-payment-group
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      properties:
+        spring.json.trusted.packages: com.fintech.p2p.*
+
+# ─── SERVER ─────────────────────────────────────────────────
+server:
+  port: 8080

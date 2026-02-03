@@ -1,0 +1,82 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: p2p-postgres
+    environment:
+      POSTGRES_DB: p2p_payment
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: p2p-redis
+    ports:
+      - "6379:6379"
+
+  kafka:
+    image: apache/kafka:3.9.0
+    container_name: p2p-kafka
+    ports:
+      - "9092:9092"
+      - "19092:19092"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    command:
+      - bash
+      - -lc
+      - |
+        set -e
+        
+        cat > /tmp/format.properties <<-EOF
+        process.roles=broker,controller
+        node.id=1
+        controller.quorum.voters=1@kafka:9093
+        
+        listeners=PLAINTEXT://:9092,PLAINTEXT_HOST://:19092,CONTROLLER://:9093
+        advertised.listeners=PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:19092
+        listener.security.protocol.map=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+        inter.broker.listener.name=PLAINTEXT
+        controller.listener.names=CONTROLLER
+        
+        log.dirs=/var/lib/kafka/data
+        EOF
+        
+        cat > /tmp/server.properties <<-EOF
+        process.roles=broker,controller
+        node.id=1
+        controller.quorum.voters=1@kafka:9093
+        
+        listeners=PLAINTEXT://:9092,PLAINTEXT_HOST://:19092,CONTROLLER://:9093
+        advertised.listeners=PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:19092
+        listener.security.protocol.map=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+        inter.broker.listener.name=PLAINTEXT
+        controller.listener.names=CONTROLLER
+        
+        auto.create.topics.enable=true
+        num.partitions=1
+        offsets.topic.replication.factor=1
+        transaction.state.log.replication.factor=1
+        transaction.state.log.min.isr=1
+        
+        log.dirs=/var/lib/kafka/data
+        log.retention.hours=168
+        EOF
+        
+        echo "==== sanity check ===="
+        grep -n '^advertised.listeners' /tmp/format.properties
+        grep -n '^listeners' /tmp/format.properties
+        
+        if [ ! -f /var/lib/kafka/data/meta.properties ]; then
+          /opt/kafka/bin/kafka-storage.sh format -t MkTvYjRlR1Kzb2ZtZXBheA== -c /tmp/format.properties
+        fi
+        
+        exec /opt/kafka/bin/kafka-server-start.sh /tmp/server.properties
+
+
+volumes:
+  postgres_data:
+  kafka_data:
