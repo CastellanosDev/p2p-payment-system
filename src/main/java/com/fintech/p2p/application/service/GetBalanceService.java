@@ -4,6 +4,7 @@ import com.fintech.p2p.domain.exception.UserNotFoundException;
 import com.fintech.p2p.domain.model.User;
 import com.fintech.p2p.domain.port.in.GetBalanceUseCase;
 import com.fintech.p2p.domain.port.out.UserRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -21,6 +22,7 @@ public class GetBalanceService implements GetBalanceUseCase {
     }
 
     @Override
+    @Cacheable(value = "balances", key = "#userId")
     public BigDecimal getBalance(Long userId) {
         // Look up the user; if not found, fail with a domain exception.
         User user = userRepository.findById(userId)

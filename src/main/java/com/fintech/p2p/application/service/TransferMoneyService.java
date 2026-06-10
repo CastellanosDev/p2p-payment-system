@@ -8,6 +8,7 @@ import com.fintech.p2p.domain.port.in.TransferMoneyUseCase;
 import com.fintech.p2p.domain.port.out.EventPublisher;
 import com.fintech.p2p.domain.port.out.TransactionRepository;
 import com.fintech.p2p.domain.port.out.UserRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,7 @@ public class TransferMoneyService implements TransferMoneyUseCase {
 
     @Override
     @Transactional
+    @CacheEvict(value = "balances", allEntries = true)
     public Transaction transfer(Long senderId, Long receiverId, BigDecimal amount) {
         // 1. Load both users (fail if either does not exist)
         User sender = userRepository.findById(senderId)
