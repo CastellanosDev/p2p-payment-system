@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
  * not yet send anything to Kafka. The real Kafka implementation will
  * replace this in a later phase, without touching the domain or application.
  */
-@Component
 public class LoggingEventPublisher implements EventPublisher {
 
     private static final Logger log = LoggerFactory.getLogger(LoggingEventPublisher.class);
